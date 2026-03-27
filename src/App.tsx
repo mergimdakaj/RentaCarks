@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { Car, Calendar, Users, DollarSign, Bell, Search, Plus, MoreVertical, CheckCircle2, AlertCircle, Clock, X, Save, Wrench, ShieldCheck, TrendingUp, FileText } from 'lucide-react';
+import { Car, Calendar, Users, DollarSign, Bell, Search, Plus, MoreVertical, CheckCircle2, AlertCircle, Clock, X, Save, Wrench, ShieldCheck, TrendingUp, FileText, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
@@ -216,76 +217,114 @@ export default function App() {
     doc.save(`Raporti_Financiar_${selectedYear}.pdf`);
   };
 
+  const SidebarContent = () => (
+    <>
+      <div className="p-6 flex items-center gap-3 border-b border-slate-800">
+        <div className="bg-blue-500 p-2 rounded-lg">
+          <Car className="w-5 h-5 text-white" />
+        </div>
+        <span className="font-bold text-xl tracking-tight">AutoRent<span className="text-blue-400">OS</span></span>
+      </div>
+      
+      <div className="p-4 flex-1">
+        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Menuja Kryesore</div>
+        <nav className="space-y-1">
+          <button 
+            onClick={() => { setActiveTab('kalendari'); setIsMobileMenuOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'kalendari' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <Calendar className="w-5 h-5" /> Kalendari
+          </button>
+          <button 
+            onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <Clock className="w-5 h-5" /> Rezervimet
+          </button>
+          <button 
+            onClick={() => { setActiveTab('flota'); setIsMobileMenuOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'flota' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <Car className="w-5 h-5" /> Flota (Veturat)
+          </button>
+          <button 
+            onClick={() => { setActiveTab('klientet'); setIsMobileMenuOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'klientet' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <Users className="w-5 h-5" /> Klientët
+          </button>
+          <button 
+            onClick={() => { setActiveTab('financat'); setIsMobileMenuOpen(false); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'financat' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+          >
+            <DollarSign className="w-5 h-5" /> Financat
+          </button>
+        </nav>
+      </div>
+      
+      <div className="p-4 border-t border-slate-800">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sm">
+            AR
+          </div>
+          <div>
+            <p className="text-sm font-medium">Auto Rent Prishtina</p>
+            <p className="text-xs text-slate-400">Plani Pro</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-        <div className="p-6 flex items-center gap-3 border-b border-slate-800">
-          <div className="bg-blue-500 p-2 rounded-lg">
-            <Car className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold text-xl tracking-tight">AutoRent<span className="text-blue-400">OS</span></span>
-        </div>
-        
-        <div className="p-4 flex-1">
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Menuja Kryesore</div>
-          <nav className="space-y-1">
-            <button 
-              onClick={() => setActiveTab('kalendari')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'kalendari' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden"
+            />
+            <motion.aside 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-72 bg-slate-900 text-white z-50 flex flex-col md:hidden"
             >
-              <Calendar className="w-5 h-5" /> Kalendari
-            </button>
-            <button 
-              onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-            >
-              <Clock className="w-5 h-5" /> Rezervimet
-            </button>
-            <button 
-              onClick={() => setActiveTab('flota')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'flota' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-            >
-              <Car className="w-5 h-5" /> Flota (Veturat)
-            </button>
-            <button 
-              onClick={() => setActiveTab('klientet')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'klientet' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-            >
-              <Users className="w-5 h-5" /> Klientët
-            </button>
-            <button 
-              onClick={() => setActiveTab('financat')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${activeTab === 'financat' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
-            >
-              <DollarSign className="w-5 h-5" /> Financat
-            </button>
-          </nav>
-        </div>
-        
-        <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-sm">
-              AR
-            </div>
-            <div>
-              <p className="text-sm font-medium">Auto Rent Prishtina</p>
-              <p className="text-xs text-slate-400">Plani Pro</p>
-            </div>
-          </div>
-        </div>
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col shrink-0">
+        <SidebarContent />
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shrink-0">
-          <h1 className="text-2xl font-bold text-slate-800">
-            {activeTab === 'flota' ? 'Menaxhimi i Flotës' : 
-             activeTab === 'kalendari' ? 'Kalendari i Kthimeve' :
-             activeTab === 'financat' ? 'Pasqyra Financiare' :
-             'Pasqyra e Sotme'}
-          </h1>
+        <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 hover:bg-slate-100 rounded-lg md:hidden text-slate-600"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800 truncate">
+              {activeTab === 'flota' ? 'Menaxhimi i Flotës' : 
+               activeTab === 'kalendari' ? 'Kalendari i Kthimeve' :
+               activeTab === 'financat' ? 'Pasqyra Financiare' :
+               'Pasqyra e Sotme'}
+            </h1>
+          </div>
           
           <div className="flex items-center gap-6">
             <div className="relative hidden sm:block">
